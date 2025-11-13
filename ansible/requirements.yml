@@ -1,0 +1,6 @@
+---
+roles:
+  - name: ricsanfre.docker
+    version: v1.0.2
+  - name: ricsanfre.backup
+    version: v1.1.3
