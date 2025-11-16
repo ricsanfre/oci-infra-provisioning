@@ -47,9 +47,9 @@ resource "oci_core_instance" "compute_instance" {
   }
   # Image details
   source_details {
-    source_id   = data.oci_core_images.ubuntu_images[each.value.shape].images[0].id
-    source_type = "image"
-    boot_volume_size_in_gbs =50
+    source_id               = data.oci_core_images.ubuntu_images[each.value.shape].images[0].id
+    source_type             = "image"
+    boot_volume_size_in_gbs = 50
   }
 
   # Optional
@@ -68,7 +68,7 @@ resource "oci_core_instance" "compute_instance" {
   lifecycle {
     ignore_changes = [
       # Ignore changes to OCI source Image (Prevent updates when a new image is available).
-      source_details[0].source_id    ]
+    source_details[0].source_id]
   }
 }
 

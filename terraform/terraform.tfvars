@@ -1,6 +1,6 @@
 compartment_name = "terraform"
 
-vcn_name = "vcn"
+vcn_name       = "vcn"
 vcn_cidr_block = "10.0.0.0/16"
 
 subnet_config = {
@@ -21,12 +21,12 @@ subnet_config = {
 #   }
 instances = {
   oci-arm-1 = {
-    name         = "oci-arm-1"
-    shape        = "VM.Standard.A1.Flex"
-    ocpus        = 2
+    name          = "oci-arm-1"
+    shape         = "VM.Standard.A1.Flex"
+    ocpus         = 2
     memory_in_gbs = 12
-    subnet_type  = "public"
-    ssh_key_path = "~/.ssh/id_rsa.pub"
+    subnet_type   = "public"
+    ssh_key_path  = "~/.ssh/id_rsa.pub"
   }
   oci-amd-1 = {
     name          = "oci-amd-1"
