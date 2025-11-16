@@ -99,19 +99,29 @@ resource "oci_core_security_list" "tf-security-lists" {
     source_type = "CIDR_BLOCK"
     stateless   = "false"
   }
+  # ingress_security_rules {
+  #   description = "Enabling ICMP traffic from private network"
+  #   icmp_options {
+  #     code = "-1"
+  #     type = "3"
+  #   }
+  #   protocol    = "1"
+  #   source      = "10.0.0.0/16"
+  #   source_type = "CIDR_BLOCK"
+  #   stateless   = "false"
+  # }
+
   ingress_security_rules {
-    description = "Enabling ICMP traffic from private network"
-    icmp_options {
-      code = "-1"
-      type = "3"
-    }
-    protocol    = "1"
+    description = "Allowing all protocols from VCN subnet"
+    protocol    = "all"
     source      = "10.0.0.0/16"
     source_type = "CIDR_BLOCK"
     stateless   = "false"
   }
+
+
   ingress_security_rules {
-    description = "Allowing HTTPS incoming traffic"
+    description = "Allowing HTTPS incoming traffic from any network"
     protocol    = "6"
     source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"

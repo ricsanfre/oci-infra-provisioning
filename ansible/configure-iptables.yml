@@ -1,0 +1,90 @@
+---
+- name: Enable HTTPS incoming traffic
+  hosts: oci
+  become: true
+  gather_facts: false
+  vars:
+    ip_tables_state: present
+
+  # Note order of the rules is important. Rules need to be added in sequence and before first REJECT or DROP rule.
+  # Default image INPUT chain has a REJECT rule at position 5.
+  tasks:
+    - name: Allow incoming HTTPS traffic
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 5
+        protocol: tcp
+        destination_port: 443
+        jump: ACCEPT
+        match: state
+        ctstate: NEW
+        comment: "Allow incoming HTTPS traffic"
+        state: "{{ ip_tables_state }}"
+
+    - name: Allow docker cli incoming traffic
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 6
+        # source: 10.0.0.0/24
+        protocol: tcp
+        destination_port: 2376
+        jump: ACCEPT
+        comment: "Allow Docker swarn port incoming traffic"
+        state: "{{ ip_tables_state }}"
+
+    - name: Allow docker swarm port incoming traffic
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 7
+        # source: 10.0.0.0/24
+        protocol: tcp
+        destination_port: 2377
+        jump: ACCEPT
+        comment: "Allow Docker swarn port incoming traffic"
+        state: "{{ ip_tables_state }}"
+
+    - name: Allow swarm overlay network node discovery traffic (tcp)
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 8
+        # source: 10.0.0.0/24
+        protocol: tcp
+        destination_port: 7946
+        jump: ACCEPT
+        comment: "Allow swarm overlay network node discovery traffic (tcp)"
+        state: "{{ ip_tables_state }}"
+
+    - name: Allow swarm overlay network node discovery traffic (udp)
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 9
+        # source: 10.0.0.0/24
+        protocol: udp
+        destination_port: 7946
+        jump: ACCEPT
+        comment: "Allow swarm overlay network node discovery traffic (udp)"
+        state: "{{ ip_tables_state }}"
+
+    - name: Allow swarm overlay network traffic
+      ansible.builtin.iptables:
+        chain: INPUT
+        action: insert
+        rule_num: 10
+        # source: 10.0.0.0/24
+        protocol: udp
+        destination_port: 4789
+        jump: ACCEPT
+        comment: "Allow swarm overlay network traffic"
+        state: "{{ ip_tables_state }}"
+
+    - name: Save current state of the firewall in system file
+      community.general.iptables_state:
+        ip_version: ipv4
+        table: filter
+        state: saved
+        path: /etc/iptables/rules.v4
