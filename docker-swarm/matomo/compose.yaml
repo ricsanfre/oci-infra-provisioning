@@ -1,0 +1,90 @@
+services:
+  db:
+    image: mariadb:lts
+    hostname: mariadb
+    networks:
+      - backend
+    command: --max-allowed-packet=64MB
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MARIADB_AUTO_UPGRADE=1
+      - MARIADB_DATABASE=matomo
+      - MARIADB_DISABLE_UPGRADE_BACKUP=1
+      - MARIADB_INITDB_SKIP_TZINFO=1
+      - MARIADB_USER=matomo
+      - MARIADB_PASSWORD_FILE=/run/secrets/matomo-mariadb-password
+      - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/mariadb-root-password
+    secrets:
+      - mariadb-root-password
+      - matomo-mariadb-password
+    # Swarm deployment configuration
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == oci-arm-1
+      restart_policy:
+        condition: on-failure
+  matomo:
+    depends_on:
+      - db
+    image: matomo
+    hostname: matomo
+    restart: always
+    networks:
+      - backend
+      - frontend
+    volumes:
+      - matomo:/var/www/html
+    environment:
+      - MATOMO_DATABASE_HOST=db
+      - MATOMO_DATABASE_ADAPTER=mysql
+      - MATOMO_DATABASE_TABLES_PREFIX=matomo_
+      - MATOMO_DATABASE_DBNAME=matomo
+      - MATOMO_DATABASE_USERNAME=matomo
+      - MATOMO_DATABASE_PASSWORD_FILE=/run/secrets/matomo-mariadb-password
+    ports:
+      - target: 80
+        protocol: tcp
+    secrets:
+      - matomo-mariadb-password
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == oci-arm-1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - traefik.enable=true
+        - traefik.swarm.network=frontend
+        - traefik.http.services.matomo.loadbalancer.server.port=80
+        - traefik.http.routers.matomo-http.rule=Host(`web-analytics.ricsanfre.com`)
+        - traefik.http.routers.matomo-http.entrypoints=web
+        - traefik.http.routers.matomo-https.rule=Host(`web-analytics.ricsanfre.com`)
+        - traefik.http.routers.matomo-https.entrypoints=websecure
+        - traefik.http.routers.matomo-https.tls=true
+        - traefik.http.routers.matomo-https.tls.certresolver=ionos
+
+# Secrets
+secrets:
+  mariadb-root-password:
+    file: ./.mariadb-root-password.secret
+  matomo-mariadb-password:
+    file: ./.matomo-mariadb-password.secret
+# Volumes
+volumes:
+  db:
+  matomo:
+
+# Networks
+# External ovelay network created previously in swarm
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
