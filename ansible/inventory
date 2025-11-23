@@ -1,6 +1,7 @@
 [oci]
-oci-web ansible_host=oci-web.oci.ricsanfre.com
+#oci-web ansible_host=oci-web.oci.ricsanfre.com
 oci-arm-1 ansible_host=oci-arm-1.oci.ricsanfre.com
+oci-arm-2 ansible_host=oci-arm-2.oci.ricsanfre.com
 oci-amd-1 ansible_host=oci-amd-1.oci.ricsanfre.com
 oci-amd-2 ansbile_host=oci-amd-2.oci.ricsanfre.com
 
