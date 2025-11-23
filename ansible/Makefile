@@ -1,4 +1,4 @@
-.PHONY: default os-upgrade init-virtualenv init-ansible configure-docker enable-https
+.PHONY: default os-upgrade init-virtualenv init-ansible configure-docker configure-iptables
 
 init: init-ansible
 
@@ -11,8 +11,8 @@ init-ansible: init-virtualenv
 os-upgrade:
 	uv run ansible-playbook upgrade-os-packages.yml
 
-enable-https:
-	uv run ansible-playbook enable-incoming-https-traffic.yml
+configure-iptables:
+	uv run ansible-playbook configure-iptables.yml
 
 configure-docker:
 	uv run ansible-playbook configure_docker.yml
