@@ -119,7 +119,6 @@ resource "oci_core_security_list" "tf-security-lists" {
     stateless   = "false"
   }
 
-
   ingress_security_rules {
     description = "Allowing HTTPS incoming traffic from any network"
     protocol    = "6"
@@ -129,6 +128,68 @@ resource "oci_core_security_list" "tf-security-lists" {
     tcp_options {
       max = "443"
       min = "443"
+    }
+  }
+}
+
+resource "oci_core_network_security_group" "pangolin" {
+  for_each       = { for name, instance in var.instances : name => instance if name == "oci-arm-2" }
+  compartment_id = oci_identity_compartment.tf-compartment.id
+  vcn_id         = oci_core_vcn.tf-vcn.id
+  display_name   = "${each.key}-pangolin"
+  freeform_tags  = merge(local.common_tags, var.additional_tags)
+}
+
+resource "oci_core_network_security_group_security_rule" "pangolin_udp_51820" {
+  for_each                  = oci_core_network_security_group.pangolin
+  network_security_group_id = each.value.id
+  direction                 = "INGRESS"
+  protocol                  = "17"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  stateless                 = false
+  description               = "Allowing Pangolin UDP port 51820 from any network"
+
+  udp_options {
+    destination_port_range {
+      max = 51820
+      min = 51820
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "pangolin_udp_21820" {
+  for_each                  = oci_core_network_security_group.pangolin
+  network_security_group_id = each.value.id
+  direction                 = "INGRESS"
+  protocol                  = "17"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  stateless                 = false
+  description               = "Allowing Pangolin client UDP port 21820 from any network"
+
+  udp_options {
+    destination_port_range {
+      max = 21820
+      min = 21820
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "pangolin_tcp_80" {
+  for_each                  = oci_core_network_security_group.pangolin
+  network_security_group_id = each.value.id
+  direction                 = "INGRESS"
+  protocol                  = "6"
+  source                    = "0.0.0.0/0"
+  source_type               = "CIDR_BLOCK"
+  stateless                 = false
+  description               = "Allowing HTTP port 80 from any network"
+
+  tcp_options {
+    destination_port_range {
+      max = 80
+      min = 80
     }
   }
 }

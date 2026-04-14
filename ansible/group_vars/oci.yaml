@@ -11,3 +11,33 @@ docker_daemon_options:
   data-root: "/var/docker/lib"
 docker_users:
   - ubuntu
+
+ip_tables_state: present
+
+input_rules:
+  - rule_num: 5
+    comment: Allow incoming HTTPS traffic
+    protocol: tcp
+    destination_port: 443
+    match: state
+    ctstate: NEW
+  - rule_num: 6
+    comment: Allow Docker swarn port incoming traffic
+    protocol: tcp
+    destination_port: 2376
+  - rule_num: 7
+    comment: Allow Docker swarn port incoming traffic
+    protocol: tcp
+    destination_port: 2377
+  - rule_num: 8
+    comment: Allow swarm overlay network node discovery traffic (tcp)
+    protocol: tcp
+    destination_port: 7946
+  - rule_num: 9
+    comment: Allow swarm overlay network node discovery traffic (udp)
+    protocol: udp
+    destination_port: 7946
+  - rule_num: 10
+    comment: Allow swarm overlay network traffic
+    protocol: udp
+    destination_port: 4789

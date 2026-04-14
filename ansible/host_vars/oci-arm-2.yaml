@@ -1,0 +1,14 @@
+---
+additional_input_rules:
+  - rule_num: 11
+    comment: Allow incoming HTTP traffic
+    protocol: tcp
+    destination_port: 80
+  - rule_num: 12
+    comment: Allow incoming Pangolin UDP traffic
+    protocol: udp
+    destination_port: 51820
+  - rule_num: 13
+    comment: Allow incoming Pangolin client UDP traffic
+    protocol: udp
+    destination_port: 21820

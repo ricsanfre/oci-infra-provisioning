@@ -57,6 +57,7 @@ resource "oci_core_instance" "compute_instance" {
   create_vnic_details {
     # Assign a public IP to the instance
     assign_public_ip = true
+    nsg_ids          = contains(keys(oci_core_network_security_group.pangolin), each.key) ? [oci_core_network_security_group.pangolin[each.key].id] : []
     subnet_id        = oci_core_subnet.tf-subnets[each.value.subnet_type].id
     hostname_label   = each.key
   }
